@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0.
 import os
 from unittest.mock import patch
 
@@ -60,6 +61,17 @@ def test_factory_registers_transports_from_yaml(cwd):
     )
     transport = factory.create()
     assert isinstance(transport, AccumulatingTransport)
+
+
+@patch.dict(os.environ, {"OPENLINEAGE_CONFIG": "tests/config/config.yml"})
+def test_factory_registers_transports_from_yaml_config():
+    factory = DefaultTransportFactory()
+    factory.register_transport(
+        "fake",
+        clazz="tests.transport.FakeTransport"
+    )
+    transport = factory.create()
+    assert isinstance(transport, FakeTransport)
 
 
 def test_automatically_registers_http_kafka():
