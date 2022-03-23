@@ -77,6 +77,8 @@ jobs:
           fi
           touch workflow_files.txt
           FILES=$(sort workflow_files.txt | uniq | tr "\n" " ")
+            
+          echo $FILES
 
           # If no changes, generate a no-op build
           if [ "$FILES" == "" ]; then
@@ -98,6 +100,7 @@ jobs:
                 (map(.jobs[] | select(has("workflow_complete") | not)) | . as $item ireduce ([]; (. *+ $item) ))
                 + [(map(.jobs[] | select(has("workflow_complete"))) | .[] as $item ireduce ({}; . *+ $item))] | {"workflows": {"build": {"jobs": .}}}' $FILES | \
             yq eval-all '. as $wf ireduce({}; . * $wf)' .circleci/continue_config.yml - > complete_config.yml
+            cat complete_config.yml
           fi
       - continuation/continue:
           configuration_path: complete_config.yml
